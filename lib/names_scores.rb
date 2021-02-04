@@ -13,7 +13,3 @@ class NamesScores
   end
 end
 
-# Project Euler Solution
-names = File.read(File.dirname(__FILE__) + '/names.txt').split(',')
-result = "Project Euler - Problem 22 Solution: #{NamesScores.total_score(names)}"
-puts result
