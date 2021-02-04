@@ -26,8 +26,8 @@ Project Euler - Problem 22 Solution: 871,198,282
 
 ### Names files
 
-### How to run the test suite
-The spec file for NamesScores can simply be run using Rspec.
+### Running tests
+The singular spec file for NamesScores can simply be run using Rspec.
 
 ### Built using:
 - **Ruby** - ruby 2.6.6p146 (2020-03-31 revision 67876)
