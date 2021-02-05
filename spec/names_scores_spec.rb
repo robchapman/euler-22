@@ -6,8 +6,14 @@ describe NamesScores do
     three_names = ['MARY', 'PATRICIA', 'LINDA']
 
     context 'given a non-array variable' do
-      it 'returns zero' do
-        expect(NamesScores.total_score("COLIN")).to eq(0)
+      it 'raises the argument error' do
+        expect { NamesScores.total_score("COLIN") }.to raise_error(ArgumentError)
+      end
+    end
+
+    context 'given an array of non-strings' do
+      it 'raises the argument error' do
+        expect { NamesScores.total_score([1, 2, 3]) } .to raise_error(ArgumentError)
       end
     end
 
@@ -86,18 +92,49 @@ describe NamesScores do
       end
     end
 
-    context 'should handle large file' do
-      file_names = File.read(File.dirname(__FILE__) + '/../lib/names.txt').split(',')
+    context 'given an empty File' do
+      empty_file = File.open(File.dirname(__FILE__) + '/empty.txt')
+      it 'returns zero' do
+        actual = NamesScores.total_score(empty_file)
+        expected = 0
+        expect(actual).to eq(expected)
+      end
+    end
+
+    context 'given a file' do
       it 'returns an integer' do
-        actual = NamesScores.total_score(file_names)
+        file = File.open(File.dirname(__FILE__) + '/test_names.txt')
+        actual = NamesScores.total_score(file)
         expect(actual).to be_a(Integer)
       end
 
       it 'returns a non-negative score' do
-        actual = NamesScores.total_score(file_names)
+        file = File.open(File.dirname(__FILE__) + '/test_names.txt')
+        actual = NamesScores.total_score(file)
         expected = 0
         expect(actual).to be >= expected
       end
+
+      it 'returns the correct score' do
+        file = File.open(File.dirname(__FILE__) + '/test_names.txt')
+        actual = NamesScores.total_score(file)
+        expected = 385
+        expect(actual).to eq(expected)
+      end
     end
+
+    # context 'should handle large file' do
+    #   file_names = File.open(File.dirname(__FILE__) + '/../lib/names.txt')
+    #   it 'returns an integer' do
+    #     actual = NamesScores.total_score(file_names)
+    #     expect(actual).to be_a(Integer)
+    #   end
+
+    #   it 'returns a non-negative score' do
+    #     actual = NamesScores.total_score(file_names)
+    #     expected = 0
+    #     expect(actual).to be >= expected
+    #   end
+    # end
   end
 end
