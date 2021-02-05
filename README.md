@@ -19,16 +19,41 @@ The total_score method on the NamesScores class can be used to determine the res
 ```
 total_score = NamesScores.total_score(names)
 ```
-The script in solution.rb yields the asnwer for the provided names.txt file
+The method will accept either an Array of strings or comma seperated names within a txt file.
+
+- The scoring method is case insensitive and will ignore non-letter characters
+- An empty array or file will return a score of zero
+- Empty name strings will be scored as zero but will occupy an array position for calculation of total score of the list of names.
+
+# Array Parameter Usage
+```
+names_array = ["MARY","PATRICIA","LINDA"]
+puts NamesScores.total_score(names_array)
+
+>> 385
+```
+# File Parameter Usage
+```
+#names.txt
+"MARY","PATRICIA","LINDA"
+
+#solve.rb
+names_file = File.open('names.txt')
+puts NamesScores.total_score(names_file)
+
+>> 385
+```
+*Be aware that a File opened to be provided to the total_score method will be closed automatically*
+
+## Problem Solution
+The script in solution.rb will print the answer for the provided names.txt file provided by the project euler problem:
 ```
 Project Euler - Problem 22 Solution: 871,198,282
 ```
 
-### Names files
-
 ### Running tests
-The singular spec file for NamesScores can simply be run using Rspec.
+The singular spec file for NamesScores can simply be run with RSpec.
 
 ### Built using:
 - **Ruby** - ruby 2.6.6p146 (2020-03-31 revision 67876)
-- **Rspec** - 3.10.0
+- **RSpec** - 3.10.0
