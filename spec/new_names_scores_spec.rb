@@ -7,7 +7,8 @@ describe NewNamesScores do
     context 'given an array of names' do
       let(:names) { ['MARY', 'PATRICIA', 'LINDA'] }
       it 'should return an alphabetically sorted array' do
-        expect(subject).to eq(['LINDA', 'MARY', 'PATRICIA'])
+        puts subject
+        expect(subject).to eq( ['LINDA', 'MARY', 'PATRICIA'])
       end
     end
   end
