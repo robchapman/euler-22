@@ -1,140 +1,152 @@
 require 'names_scores'
 
 describe NamesScores do
-  describe '#total_score' do
-    single_name = ['COLIN']
-    three_names = ['MARY', 'PATRICIA', 'LINDA']
+  let(:names_scores) { described_class.new(names: names) }
 
-    context 'given a non-array variable' do
-      it 'raises the argument error' do
-        expect { NamesScores.total_score("COLIN") }.to raise_error(ArgumentError)
+  context 'using default sorting/scoring/totalling' do
+    describe '#sorted_names' do
+      subject { names_scores.sorted_names }
+      context 'given an array of names' do
+        let(:names) { ['MARY', 'PATRICIA', 'LINDA'] }
+        it 'should return an alphabetically sorted array (DEFAULT)' do
+          expect(subject).to eq( ['LINDA', 'MARY', 'PATRICIA'])
+        end
+      end
+    end
+    describe '#score' do
+      subject { names_scores.score('COLIN') }
+      context 'given a name string' do
+        let(:names) { [] }
+        it 'should return the correct score' do
+          expect(subject).to eq(53)
+        end
+      end
+      context 'given variable cases strings' do
+        subject { names_scores.score('CoLiN') }
+        let(:names) { [] }
+        it 'character case does not matter' do
+          expect(subject).to eq(53)
+        end
+      end
+      context 'given strings with non alphabet characters' do
+        subject { names_scores.score('"#COLIN123___"') }
+        let(:names) { [] }
+        it 'non alphabet characters do not matter' do
+          expect(subject).to eq(53)
+        end
+      end
+    end
+    describe '#total_score' do
+      subject { names_scores.total_score }
+      context 'given an empty array' do
+        let(:names) { [] }
+        it 'returns zero' do
+          expect(subject).to eq(0)
+        end
+      end
+      context 'given an array of empty strings' do
+        let(:names) { ['', '', ''] }
+        it 'returns zero' do
+          expect(subject).to eq(0)
+        end
+      end
+      context 'given an array of names' do
+        let(:names) { ['MARY', 'PATRICIA', 'LINDA'] }
+        it 'should return the correct score (DEFAULT)' do
+          expect(subject).to eq(385)
+        end
       end
     end
 
-    context 'given an array of non-strings' do
-      it 'raises the argument error' do
-        expect { NamesScores.total_score([1, 2, 3]) } .to raise_error(ArgumentError)
+    describe 'Argument Error Throwing' do
+      subject { names_scores.total_score }
+      context 'given a non-array, non-File variable' do
+        let(:names) { "COLIN" }
+        it 'raises the argument error' do
+          expect { subject }.to raise_error(ArgumentError)
+        end
       end
     end
 
-    context 'given an empty array' do
-      it 'returns zero' do
-        expect(NamesScores.total_score([])).to eq(0)
+    describe 'File Reading' do
+      subject { names_scores.total_score }
+      context 'given an empty File' do
+        let(:names) { File.open(File.dirname(__FILE__) + '/empty.txt') }
+        it 'returns zero' do
+          expect(subject).to eq(0)
+        end
+      end
+
+      context 'given a file' do
+        let(:names) { File.open(File.dirname(__FILE__) + '/test_names.txt') }
+        it 'returns the correct score' do
+          expect(subject).to eq(385)
+        end
       end
     end
+  end
 
-    context 'given an array of empty strings' do
-      it 'returns zero' do
-        expect(NamesScores.total_score(['', '', ''])).to eq(0)
+  context 'given user defined sorting function(reverse alphabetically)' do
+    sort = ->(a, b) { b <=> a }
+    let(:names_scores) { described_class.new(names: names, sort: sort) }
+    describe '#sorted_names' do
+      subject { names_scores.sorted_names }
+      context 'given an array of names' do
+        let(:names) { ['MARY', 'PATRICIA', 'LINDA'] }
+        it 'should return a correctly sorted array (reverse alphabetically)' do
+          expect(subject).to eq(['PATRICIA', 'MARY', 'LINDA'])
+        end
       end
     end
-
-    context 'given a single name' do
-      it 'returns an integer' do
-        actual = NamesScores.total_score(single_name)
-        expect(actual).to be_a(Integer)
-      end
-
-      it 'returns a non-negative score' do
-        actual = NamesScores.total_score(single_name)
-        expected = 0
-        expect(actual).to be >= expected
-      end
-
-      it 'returns the correct score' do
-        actual = NamesScores.total_score(single_name)
-        expected = 53
-        expect(actual).to eq(expected)
+    describe '#total_score' do
+      subject { names_scores.total_score }
+      context 'given an array of names' do
+        let(:names) { ['MARY', 'PATRICIA', 'LINDA'] }
+        it 'should return the correct score (Reverse alpha sort)' do
+          expect(subject).to eq(311)
+        end
       end
     end
+  end
 
-    context 'given multiple names' do
-      it 'returns an integer' do
-        actual = NamesScores.total_score(three_names)
-        expect(actual).to be_a(Integer)
-      end
-
-      it 'returns a non-negative score' do
-        actual = NamesScores.total_score(three_names)
-        expected = 0
-        expect(actual).to be >= expected
-      end
-
-      it 'name order does not matter' do
-        mixed = ['LINDA', 'PATRICIA', 'MARY']
-        score = NamesScores.total_score(three_names)
-        score_mixed = NamesScores.total_score(mixed)
-        expect(score).to eq(score_mixed)
-      end
-
-      it 'returns the correct score' do
-        actual = NamesScores.total_score(three_names)
-        expected = 385
-        expect(actual).to eq(expected)
+  context 'given user defined score function (Character value squared (A=1, B=4, C=9...)' do
+    score = ->(name) { name.scan(/[a-zA-Z]/).sum { |chr| (chr.upcase.ord - 64)**2 } }
+    let(:names_scores) { described_class.new(names: names, score: score) }
+    describe '#score' do
+      subject { names_scores.score('COLIN') }
+      context 'given a name string' do
+        let(:names) { [] }
+        it 'should return an alphabetically sorted array (value squared)' do
+          expect(subject).to eq(655)
+        end
       end
     end
-
-    context 'should be case insesitive' do
-      diff_case = ['Mary', 'patricia', 'LiNdA']
-      it 'character case does not matter' do
-        score = NamesScores.total_score(three_names)
-        score_diff_case = NamesScores.total_score(diff_case)
-        expect(score).to eq(score_diff_case)
+    describe '#total_score' do
+      subject { names_scores.total_score }
+      context 'given an array of names' do
+        let(:names) { ['MARY', 'PATRICIA', 'LINDA'] }
+        it 'should return the correct score' do
+          expect(subject).to eq(6135)
+        end
       end
     end
+  end
 
-    context 'should ignore non alphabet characters' do
-      it 'non alphabet characters do not matter' do
-        non_letter = ['#LiNDa', '*_*_Pa    TRiCIA__3484', 'MARY!!!;))))']
-        score = NamesScores.total_score(three_names)
-        score_mixed = NamesScores.total_score(non_letter)
-        expect(score).to eq(score_mixed)
+  context "given user defined totalling function (multiply by square of name's sorted position" do
+    total = lambda { |names, score|
+      sum = 0
+      names.each_with_index { |name, index| sum += score.call(name) * ((index + 1)**2) }
+      sum
+    }
+    let(:names_scores) { described_class.new(names: names, total: total) }
+    describe '#total_score' do
+      subject { names_scores.total_score }
+      context 'given an array of names' do
+        let(:names) { ['MARY', 'PATRICIA', 'LINDA'] }
+        it 'should return the correct score' do
+          expect(subject).to eq(961)
+        end
       end
     end
-
-    context 'given an empty File' do
-      empty_file = File.open(File.dirname(__FILE__) + '/empty.txt')
-      it 'returns zero' do
-        actual = NamesScores.total_score(empty_file)
-        expected = 0
-        expect(actual).to eq(expected)
-      end
-    end
-
-    context 'given a file' do
-      it 'returns an integer' do
-        file = File.open(File.dirname(__FILE__) + '/test_names.txt')
-        actual = NamesScores.total_score(file)
-        expect(actual).to be_a(Integer)
-      end
-
-      it 'returns a non-negative score' do
-        file = File.open(File.dirname(__FILE__) + '/test_names.txt')
-        actual = NamesScores.total_score(file)
-        expected = 0
-        expect(actual).to be >= expected
-      end
-
-      it 'returns the correct score' do
-        file = File.open(File.dirname(__FILE__) + '/test_names.txt')
-        actual = NamesScores.total_score(file)
-        expected = 385
-        expect(actual).to eq(expected)
-      end
-    end
-
-    # context 'should handle large file' do
-    #   file_names = File.open(File.dirname(__FILE__) + '/../lib/names.txt')
-    #   it 'returns an integer' do
-    #     actual = NamesScores.total_score(file_names)
-    #     expect(actual).to be_a(Integer)
-    #   end
-
-    #   it 'returns a non-negative score' do
-    #     actual = NamesScores.total_score(file_names)
-    #     expected = 0
-    #     expect(actual).to be >= expected
-    #   end
-    # end
   end
 end
