@@ -31,7 +31,7 @@ class NamesScores
   end
 
   def total_score
-    @total_score ||= @total.call(sorted_names, @score)
+    @total_score ||= total.call(sorted_names, score)
   end
 
   private
