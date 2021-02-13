@@ -23,11 +23,11 @@ class NamesScores
   end
 
   def sorted_names
-    @sorted_names ||= @names.sort &@sort
+    @sorted_names ||= names.sort &sort
   end
 
-  def score(name)
-    @score.call(name)
+  def score_name(name)
+    score.call(name)
   end
 
   def total_score

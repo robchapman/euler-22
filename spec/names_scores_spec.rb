@@ -14,7 +14,7 @@ describe NamesScores do
       end
     end
     describe '#score' do
-      subject { names_scores.score('COLIN') }
+      subject { names_scores.score_name('COLIN') }
       context 'given a name string' do
         let(:names) { [] }
         it 'should return the correct score' do
@@ -22,14 +22,14 @@ describe NamesScores do
         end
       end
       context 'given variable cases strings' do
-        subject { names_scores.score('CoLiN') }
+        subject { names_scores.score_name('CoLiN') }
         let(:names) { [] }
         it 'character case does not matter' do
           expect(subject).to eq(53)
         end
       end
       context 'given strings with non alphabet characters' do
-        subject { names_scores.score('"#COLIN123___"') }
+        subject { names_scores.score_name('"#COLIN123___"') }
         let(:names) { [] }
         it 'non alphabet characters do not matter' do
           expect(subject).to eq(53)
@@ -113,7 +113,7 @@ describe NamesScores do
     score = ->(name) { name.scan(/[a-zA-Z]/).sum { |chr| (chr.upcase.ord - 64)**2 } }
     let(:names_scores) { described_class.new(names: names, score: score) }
     describe '#score' do
-      subject { names_scores.score('COLIN') }
+      subject { names_scores.score_name('COLIN') }
       context 'given a name string' do
         let(:names) { [] }
         it 'should return an alphabetically sorted array (value squared)' do
