@@ -15,35 +15,93 @@ This a solution to [Problem #22 from Project Euler](https://projecteuler.net/pro
 >What is the total of all the name scores in the file?
 
 ## Features
-The total_score method on the NamesScores class can be used to determine the resulting total score.
+### Initialization
+A new class instance can be created by passing optionally passing the below key paramters:
 ```
-total_score = NamesScores.total_score(names)
+names_scores = NamesScores.new(names: some_names, sort: some_sorter, score: some_scorer, total: some_totaller)
 ```
-The method will accept either an Array of strings or comma seperated names within a txt file.
+- **names:** An array of name strings or a File with comma seperated names
+- **sort:** A lambda object that implements a comparison between two variables (a,b) and returns an integer less than 0 when b follows a, 0 when and b are equivalent, or an integer greater than 0 when a follows b. This is as per the block required for the standard ruby Enumerable#sort method.
+- **score:** A lambda object that produces an Integer score for a given name provided as a string variable.
+- **total:** A lambda object that produces a final score for the set of names given the names as an Array variable and the scoring function as defined above.
 
+For example the default parameters for a NamesScores object reflect the sorting/scoring and totalling behaviour required to solve the Euler Project Question:
+An ascending alphabetic sort
+```
+  DEFAULT_SORT = ->(a, b) { a <=> b }
+```
+
+A score calculated based on sum of letters alphabetic order (A = 1, B = 2, etc.)
+```
+  DEFAULT_SCORE = ->(name) { name.scan(/[a-zA-Z]/).sum { |chr| chr.upcase.ord - 64 } }
+```
+
+The total score is equivalent to sum of individual names multuplied by their
+position in the sorted array of names
+```
+  DEFAULT_TOTAL = lambda { |names, score|
+    total = 0
+    names.each_with_index { |name, index| total += score.call(name) * (index + 1) }
+    total
+  }
+
+```
+
+### Default Scoring and Totalling
 - The scoring method is case insensitive and will ignore non-letter characters
 - An empty array or file will return a score of zero
 - Empty name strings will be scored as zero but will occupy an array position for calculation of total score of the list of names.
 
-### Array Parameter Usage
+### The names parameter
+The method will accept either an Array of strings or comma seperated names within a txt file.
+**Array Parameter Usage**
 ```
 names_array = ["MARY","PATRICIA","LINDA"]
-puts NamesScores.total_score(names_array)
+names_scores = NamesScores.new(names: names_array)
+puts names_scores.total_score
 
 >> 385
 ```
-### File Parameter Usage
+**File Parameter Usage**
 ```
 #names.txt
 "MARY","PATRICIA","LINDA"
 
 #solve.rb
 names_file = File.open('names.txt')
-puts NamesScores.total_score(names_file)
+names_scores = NamesScores.new(names: names_file)
+puts names_scores.total_score
 
 >> 385
 ```
 *Be aware that a File opened to be provided to the total_score method will be closed automatically*
+
+
+### #total_score
+The total_score method on the on an instance of a NamesScores object can be used to determine the resulting total score of the name strings provided.
+```
+names_scores = NamesScores.new(names:['MARY', 'PATRICIA', 'LINDA']
+puts names_scores.sorted_names
+
+>> 385
+```
+
+### #sorted_names
+#sorted_names will return the names the object was instantiated with as an Array of String obkects according to the `sort` variable it was instantiated with.
+```
+names_scores = NamesScores.new(names: ["ZEE", "AARON"]
+puts names_scores.sorted_names
+
+>> ["AARON", "ZEE"]
+```
+
+### #score
+#score will return the score for a given name String in Integer form. 
+```
+puts names_scores.score("COLIN")
+
+>> 53
+```
 
 ## Problem Solution
 The script in solution.rb will print the answer for the provided names.txt file provided by the project euler problem:
